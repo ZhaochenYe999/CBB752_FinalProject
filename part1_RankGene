@@ -1,0 +1,42 @@
+# Load the libraries and the data
+library(dplyr)
+library(VariantAnnotation)
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(org.Hs.eg.db)
+library(AnnotationDbi)
+vcf = readVcf("./Z.variantCall.SNPs.vcf", "hg19")
+
+# Select the chromosome 22 and change the chromosome annotation to match the reference
+chr22_vcf = vcf[seqnames(rowRanges(vcf)) == "22", ]
+chr22_vcf = keepSeqlevels(chr22_vcf, value = "22", pruning.mode = "coarse")
+seqlevels(chr22_vcf) = "chr22"
+
+# Load the gene location reference and call variants in different regions
+txdb = TxDb.Hsapiens.UCSC.hg19.knownGene
+loc = locateVariants(chr22_vcf, txdb, AllVariants()) # A wide choice here: CodingVariants, IntronVariants, FiveUTRVariants, ThreeUTRVariants, IntergenicVariants, SpliceSiteVariants, PromoterVariants, AllVariants. Depending on the desired variant type.
+
+# Get the genes’ Entrez IDs and convert them into Symbols
+splt = split(mcols(loc)$QUERYID, mcols(loc)$GENEID)
+variants = sapply(splt, function(x) length(unique(x)))
+gene_ids = names(variants)
+symbols = mapIds(org.Hs.eg.db,
+                  keys = gene_ids,
+                  column = "SYMBOL",
+                  keytype = "ENTREZID",
+                  multiVals = "first")
+df = data.frame(row.names = gene_ids, Mutation_count = variants, Gene_symbol = symbols)
+
+### There is a potential issue here: the identified genes are located in multiple chromosomes, especially chromosome 17 and 18, so I filtered the genes not on chromosome 22. ###
+# Get the gene location
+gene_locs = genes(txdb, filter = list(gene_id = gene_ids),single.strand.genes.only=T)
+gene_locs$symbol = symbols[match(gene_locs$gene_id, gene_ids)]
+df_ft = data.frame(
+row.names = gene_locs$gene_id,
+Chromosome = as.character(seqnames(gene_locs)),
+Gene_symbol = gene_locs$symbol,
+stringsAsFactors = FALSE
+)
+df$Chromosome = df_ft[rownames(df),'Chromosome']
+
+# Show the gene list ranked by mutation counts
+df %>% arrange(desc(Mutation_count)) %>% filter(Chromosome == 'chr22') 
