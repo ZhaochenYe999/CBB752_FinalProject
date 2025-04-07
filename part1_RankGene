@@ -7,16 +7,20 @@ library(AnnotationDbi)
 vcf = readVcf("./Z.variantCall.SNPs.vcf", "hg19")
 
 # Select the chromosome 22 and change the chromosome annotation to match the reference
-chr22_vcf = vcf[seqnames(rowRanges(vcf)) == "22", ]
-chr22_vcf = keepSeqlevels(chr22_vcf, value = "22", pruning.mode = "coarse")
-seqlevels(chr22_vcf) = "chr22"
+vcf_chr22 = subset(vcf, seqnames(rowRanges(vcf)) == "22")
+vcf_chr22 = keepSeqlevels(vcf_chr22, value = "22", pruning.mode = "coarse")
+seqlevels(vcf_chr22) = "chr22"
 
 # Load the gene location reference and call variants in different regions
 txdb = TxDb.Hsapiens.UCSC.hg19.knownGene
-loc = locateVariants(chr22_vcf, txdb, AllVariants()) # A wide choice here: CodingVariants, IntronVariants, FiveUTRVariants, ThreeUTRVariants, IntergenicVariants, SpliceSiteVariants, PromoterVariants, AllVariants. Depending on the desired variant type.
+loc = locateVariants(vcf_chr22, txdb, CodingVariants()) 
+
+### A wide choice here: CodingVariants, IntronVariants, FiveUTRVariants, ThreeUTRVariants, IntergenicVariants, SpliceSiteVariants, PromoterVariants, AllVariants. Depending on the desired variant type. ###
+### There is a potential issue here that if choosing IntronVariants() in the locateVariants function, the identified genes are located in chromosome 17 and 18 ###
+### No genes would be identified with IntergenicVariants() ###
 
 # Get the genes’ Entrez IDs and convert them into Symbols
-splt = split(mcols(loc)$QUERYID, mcols(loc)$GENEID)
+splt = split(loc$QUERYID, loc$GENEID)
 variants = sapply(splt, function(x) length(unique(x)))
 gene_ids = names(variants)
 symbols = mapIds(org.Hs.eg.db,
@@ -26,7 +30,6 @@ symbols = mapIds(org.Hs.eg.db,
                   multiVals = "first")
 df = data.frame(row.names = gene_ids, Mutation_count = variants, Gene_symbol = symbols)
 
-### There is a potential issue here: the identified genes are located in multiple chromosomes, especially chromosome 17 and 18, so I filtered the genes not on chromosome 22. ###
 # Get the gene location
 gene_locs = genes(txdb, filter = list(gene_id = gene_ids),single.strand.genes.only=T)
 gene_locs$symbol = symbols[match(gene_locs$gene_id, gene_ids)]
@@ -38,5 +41,14 @@ stringsAsFactors = FALSE
 )
 df$Chromosome = df_ft[rownames(df),'Chromosome']
 
-# Show the gene list ranked by mutation counts
-df %>% arrange(desc(Mutation_count)) %>% filter(Chromosome == 'chr22') 
+# Filter the gene list and rank genes by mutation counts
+df = df %>% filter(Chromosome == 'chr22') %>% arrange(desc(Mutation_count))
+write.csv(df, file='./genelist/genelist_codingvariant.csv')
+
+# Generate VCF file with variants in the prioritized genes
+g10 = rownames(df)[1:10] # Some genes might have the same number of mutations, pressing for new strategies to distinguish them.
+g10_locs = gene_locs[names(gene_locs) %in% g10]
+vcf_ranges = rowRanges(vcf_chr22)
+hits = findOverlaps(vcf_ranges, g10_locs)
+vcf_g10 = vcf_chr22[queryHits(hits)]
+writeVcf(vcf_g10, "./gene_variants_chr22.vcf")
