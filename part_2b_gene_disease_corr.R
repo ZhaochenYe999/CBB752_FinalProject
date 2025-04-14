@@ -13,25 +13,65 @@ df = read_csv("abstracts.csv")
 # FUNCTIONS ---------------------------------------------------------------
 map_disease_name <- function(value) {
     case_when(
+    
         nchar(value) == 1 ~ NA_character_,
         
-        value %in% c("diabetes", "diabetes mellitus", "dm") ~ "Diabetes",
+        #General Terms
+        value %in% c("cancer","tumor","malignancy", "malignancies","carcinoma","neoplasia","malignant tumor", "tumor") ~ "Cancer",
+        value %in% c("inflam", "inf", "##lammation","inflammation", "allergic inflammation") ~ "Inflammation",
+        value %in% c("mental illness", "mental iless", "psychiatric illness", "psychiatric disorders", "mental disorders") ~ "Mental illness",
+        value %in% c("bleeding", "Bleeding Diathesis", "bleeding diathesis", "gingival bleeding", "epistaxis", "hemorrhage") ~ "Bleeding",
         
+        #Cancer types
+        value %in% c("tumorige", "lung adenocarcinoma", "luad","lung cancer", "Lung Cancer","lung tumor", "non - small cell lung cancer","nsclc") ~ "Lung Cancer",
+        value %in% c("hcc","liver cancer","Liver Cancer","hepatocellular carcinoma", "liver hepatocellular carcinoma") ~ "Liver Cancer",
+        value %in% c("kirc", "Kidney Cancer", "renal cell carcinoma", "kidney renal clear cell carcinoma", "clear cell renal cell carcinoma", "renal cancer", "ccrcc") ~"Kidney Cancer",
+        value %in% c("breast cancer", "brea","breast tumor", "gynecological malignancies", "cancerervical and uterine", "ovarian tumors", "ovarian cancer", "oc") ~ "Breast/Ovarian Cancer",
+        value %in% c("pca","prostate cancer", "prostate carcinoma") ~ "Prostate Cancer",
+        value %in% c("ptc", "papillary thyroid carcinoma", "papillary thyroid cancer", "Papillary Thyroid Carcinoma") ~ "Papillary Thyroid Carcinoma",
+        value %in% c("gastric cancer", "gc", "gastrointestinal cancer", "gastrointestinal cancers") ~ "Gastric Cancer",
+        value %in% c("hnc","head and neck cancer") ~ "Head and Neck Cancer",
+        value %in% c("brain tumor", "glioma", "gliomas", "brain gliomas", "neuroblastoma", "Neuroblastoma", "medulloblastoma", "pediatric tumor","nb") ~ "Brain cancer",
+        value %in% c("all", "Acute Lymphoblastic Leukemia", "acute lymphoblastic leukemia") ~ "Acute Lymphoblastic Leukemia",
+        
+        #Anemia
+        value %in% c("fa", "Thalassemia", "Fanconi Anemia", "fanconi anemia") ~ "Anemia",
+        
+        
+        
+        value %in% c("schizophrenia", "scz", "Schizophrenia", "schizophreniametab", "sczmetabolic traits") ~ "Schizophrenia",
+        value %in% c("Depression","mdd", "depression", "depressive disorder") ~ "Depression",
+        
+
         value %in% c("chronic kidney disease", "ckd", "chronic renal insufficiency", "ksd",
                      "renal disease", "renal impairment", "impairment of renal function", 
                      "kidney disease", "digestive and kidney disease", 
                      "end - stage kidney disease", "hpsronic kidney disease", 
                      "apol1 kidney disease", "proteinuric kidney diseases", 
-                     "kidney stone disease", "stone", "end - stage organ disease", 
-                     "kd", "eskd", "amkd", "dkd") ~ "Kidney Disease",
+                     "kidney stone disease", "stone", "end - stage organ disease",
+                     "kidney stones", "urolithiasis",
+                     "kd", "eskd", "amkd", "dkd",
+                     "Kidney Disease", "kidney disorders", "kidney damage", "kidney cell injury",
+                     "diabetic kidney disease", "kidney transplant failure", "polycystic kidneys", "polycystic kidney disease",
+                     "hydronephrosis", "vesicoureteral reflux", "dysplastic kidneys", "kidney size") ~ "Kidney Disease",
         
-        value %in% c("hcc") ~ "Liver Cancer",
+        
+        value %in% c("##matory bowel disease", "ibd", "colitis", "granulomatous colitis", "inflammatory bowel disease", "Inflammatory Bowel Disease") ~ "Inflammatory Bowel Disease",
+        value %in% c("Immunodeficiency", "disordered immunity", "nodeficiency") ~ "Immunodeficiency",
+    
+        value %in% c("diabetes", "diabetes mellitus", "dm") ~ "Diabetes",
+        
+       
+        value %in% c("oculocuta", "oca", "oca1", "oca type 1", "periodic albinism", "albinism",
+                     "albinism", "oculocutaneous albinism", "Albinism", "hypopigmentation", "periodic albino") ~ "Albinism",
+        
         
         value %in% c("sickle cell", "sickle cell anemia", "sickle cell disease", 
                      "sca", "scd", "sse") ~ "Sickle Cell Disease",
         
         value %in% c("idiopathic pulmonary fibrosis", "ipf", "pulmonary fibrosis", 
-                     "restrictive lung disease", "interstitial lung disease", "##iratory disease") ~ "Lung Disease",
+                     "restrictive lung disease", "interstitial lung disease", "##iratory disease",
+                     "lung inflammation", "airway inflammation", "allergic airway inflammation", "asthma", "allergic asthma", "bronchial asthma") ~ "Lung Disease",
         
         value %in% c("##cytop") ~ "Podocytopathy",
         
@@ -48,29 +88,15 @@ map_disease_name <- function(value) {
         
         str_detect(value, "alzheimer") ~ "Alzheimer's Disease",
         
-        value %in% c("depression", "depressive disorder") ~ "Depression",
         
-        value %in% c("schizophrenia", "scz") ~ "Schizophrenia",
         
-        value %in% c("breast cancer", "brea") ~ "Breast Cancer",
         
-        value %in% c("kirc") ~ "Kidney Cancer",
-        
-        value %in% c("tumorige", "lung adenocarcinoma", "luad") ~ "Lung Cancer",
-        
-        value %in% c("gastric cancer", "gc", "gastrointestinal cancer", "gastrointestinal cancers") ~ "Gastric Cancer",
-        
-        value %in% c("ovarian tumors", "ovarian cancer", "oc") ~ "Ovarian Cancer",
-        
-        value %in% c("maligna") ~ "Malignancies",
-        
+
         value %in% c("glaucoma") ~ "Glaucoma",
         
         value %in% c("hermansky - pudlak syndrome", "hps", "hp", "autosomal recessive disorder", "herman", "hsp") ~ "Hermansky-Pudlak Syndrome",
         
-        value %in% c("##matory bowel disease", "ibd") ~ "Inflammatory Bowel Disease",
         
-        value %in% c("inflam", "inf", "##lammation") ~ "Inflammation",
         
         value %in% c("bleeding diath") ~ "Bleeding Diathesis",
         
@@ -80,13 +106,12 @@ map_disease_name <- function(value) {
         
         value %in% c("nec") ~ "Necrosis",
         
-        value %in% c("oculocuta", "oca", "oca1", "oca type 1", "periodic albinism") ~ "Albinism",
-        
+      
         value %in% c("parasuis", "glaesserella parasui", "para") ~ "Glaesserella Parasuis",
         
         value %in% c("thala") ~ "Thalassemia",
         
-        value %in% c("hyper") ~ "Hypertension",
+        value %in% c("hyper",  "hypertension", "Hypertension", "arterial hypertension") ~ "Hypertension",
         
         value %in% c("hy") ~ "Hypotoxic",
         
@@ -120,23 +145,23 @@ map_disease_name <- function(value) {
         
         value %in% c("purp", "rp") ~ "Strongylocentrotus Purpuratus",
         
-        value %in% c("ptc") ~ "Papillary Thyroid Carcinoma",
         
         value %in% c("pai") ~ "Primary Adrenal Insufficiency",
         
         value %in% c("dsd") ~ "Disorder of Sex Development",
         
-        value %in% c("fa") ~ "Fanconi Anemia",
         
         value %in% c("st", "ry fibrosis", "al", "##tension", "idy", "magp", "ol1", "in", "can", "choc", "ch", "ic", "sa", "resp") ~ NA_character_,
         
         value %in% c("arsa", "arte", "ar") ~ "Aberrant Right Subclavian Artery",
         
-        value %in% c("cf") ~ "Cystic Fibrosis",
+        value %in% c("cf","cystic fibrosis") ~ "Cystic Fibrosis",
         
-        value %in% c("nb") ~ "Neuroblastoma",
         
-        value %in% c("lvh") ~ "Left Ventricular Hypertrophy",
+        value %in% c("lvh",  "Left Ventricular Hypertrophy", "left ventricular hypertrophy", "left ventricular ( lv ) hypertrophy") ~ "Left Ventricular Hypertrophy",
+        
+        value %in% c("stroke", "Strokes") ~ "Strokes",
+        value %in% c( "cardiomyopathy", "cardiomyopathies") ~ "Cardiomyopathy",
         
         value %in% c("mpn") ~ "Myeloproliferative Neoplasms",
         
@@ -154,7 +179,7 @@ map_disease_name <- function(value) {
         
         value %in% c("dl") ~ "Dysphagia Lusoria",
         
-        value %in% c("pca") ~ "Prostate Cancer",
+
         
         value %in% c("fat") ~ "Fat Droplet Formation",
         
@@ -168,9 +193,8 @@ map_disease_name <- function(value) {
         
         value %in% c("pms", "pm") ~ "Phelan-McDermid Syndrome",
         
-        value %in% c("chd", "cad") ~ "Heart Disease",
+        value %in% c("chd", "cad", "Heart Disease", "coronary artery disease", "cardiovascular disease", "cardiac diseases") ~ "Heart Disease",
         
-        value %in% c("all") ~ "Acute Lymphoblastic Leukemia",
         
         value %in% c("osa") ~ "Obstructive Sleep Apnea",
         
@@ -182,7 +206,6 @@ map_disease_name <- function(value) {
         
         value %in% c("hlhs") ~ "Hypoplastic Left Heart Syndrome",
         
-        value %in% c("hnc") ~ "Head and Neck Cancer",
         
         value %in% c("cscc") ~ "Cutaneous Squamous-Cell Carcinoma",
         
@@ -195,8 +218,6 @@ map_disease_name <- function(value) {
         value %in% c("ntd", "ntds") ~ "Neural Tube Defects",
         
         value %in% c("rs") ~ "Respiratory Sinus Arrhythmia",
-        
-        value %in% c("mdd") ~ "Major Depressive Disorder",
         
         value %in% c("scm") ~ "Subclinical Mastitis",
         
@@ -213,14 +234,17 @@ df_clean = df %>%
     filter(pmid != "39406866") %>%
     mutate(disease_entities = str_replace_all(disease_entities, "\\[|\\]|'", "")) %>%
     mutate(disease_entities = str_split(disease_entities, ",\\s*"))
-
+    
 
 disease_long = df_clean %>%
     unnest(disease_entities) %>%
-    mutate(disease_entities = str_trim(disease_entities)) %>%
+    mutate(disease_entities = str_to_lower(str_trim(disease_entities))) %>%
+    mutate(std_name = map_disease_name(disease_entities)) %>%
     filter(disease_entities != "") %>%
     mutate(std_name = map_disease_name(disease_entities)) %>%
     drop_na()
+
+View(head(disease_long))
 
 # BARPLOT -----------------------------------------------------------------
 
@@ -239,7 +263,6 @@ top_terms %>%
     theme_minimal()
 
 
-View(disease_long)
 
 
 # HEATMAP -----------------------------------------------------------------
@@ -282,16 +305,14 @@ ggplot(heatmap_data, aes(x = disease, y = gene, fill = count)) +
 
 # STAT TESTS -------------------------------------------------------
 
-table1(~std_name, data=disease_long)
-
-contingency_tbl <- table(disease_long$gene, disease_long$disease_entities)
-
+contingency_tbl <- table(disease_long$gene, disease_long$std_name)
 chi_test <- chisq.test(contingency_tbl)
+chi_test$p.value  
+residuals <- chi_test$stdres  
 
-# View the p-values for associations
-chi_test$p.value  # overall test
+res_df <- as.data.frame(as.table(residuals)) %>%
+    rename(gene = Var1, disease = Var2, stdres = Freq) %>%
+    filter(abs(stdres) > 2) %>%
+    arrange(desc(abs(stdres)))  
 
-# For individual gene-disease combinations (optional)
-residuals <- chi_test$stdres  # standardized residuals (higher = stronger deviation)
 
-View
