@@ -17,10 +17,15 @@ map_disease_name <- function(value) {
         nchar(value) == 1 ~ NA_character_,
         
         #General Terms
-        value %in% c("cancer","tumor","malignancy", "malignancies","carcinoma","neoplasia","malignant tumor", "tumor") ~ "Cancer",
+        value %in% c("cancer","tumor","malignancy", "malignancies","carcinoma","neoplasia","malignant tumor", "tumor","carcin") ~ "Cancer",
         value %in% c("inflam", "inf", "##lammation","inflammation", "allergic inflammation") ~ "Inflammation",
-        value %in% c("mental illness", "mental iless", "psychiatric illness", "psychiatric disorders", "mental disorders") ~ "Mental illness",
+        value %in% c("mental illness", "mental iless", "psychiatric illness", "psychiatric disorders", "mental disorders","neuropsychiatric problems") ~ "Mental illness",
         value %in% c("bleeding", "Bleeding Diathesis", "bleeding diathesis", "gingival bleeding", "epistaxis", "hemorrhage") ~ "Bleeding",
+        value %in% c("neurodegeneration", "brain proteinopathies","proteinopathies","neurodegenerative disorder","neurodegenerative and mental disorders",
+                     "developmental and neurocognitive progressive deterioration","neurodegeneration") ~ "Neurodegenerative disorders",
+        str_detect(value, "alzheimer") ~ "Neurodegenerative disorders",
+        str_detect(value, "parkinson") ~ "Neurodegenerative disorders",
+        value %in% c("pd") ~ "Neurodegenerative disorders",
         
         #Cancer types
         value %in% c("tumorige", "lung adenocarcinoma", "luad","lung cancer", "Lung Cancer","lung tumor", "non - small cell lung cancer","nsclc") ~ "Lung Cancer",
@@ -33,6 +38,7 @@ map_disease_name <- function(value) {
         value %in% c("hnc","head and neck cancer") ~ "Head and Neck Cancer",
         value %in% c("brain tumor", "glioma", "gliomas", "brain gliomas", "neuroblastoma", "Neuroblastoma", "medulloblastoma", "pediatric tumor","nb") ~ "Brain cancer",
         value %in% c("all", "Acute Lymphoblastic Leukemia", "acute lymphoblastic leukemia") ~ "Acute Lymphoblastic Leukemia",
+        value %in% c("melanoma","cscc") ~ "Skin cancer",
         
         #Anemia
         value %in% c("fa", "Thalassemia", "Fanconi Anemia", "fanconi anemia") ~ "Anemia",
@@ -86,19 +92,14 @@ map_disease_name <- function(value) {
         value %in% c("infertility", "azoospermia", "non - obstructive azoospermia", 
                      "male infertility", "noa", "no") ~ "Infertility",
         
-        str_detect(value, "alzheimer") ~ "Alzheimer's Disease",
-        
-        
-        
-        
+    
+
 
         value %in% c("glaucoma") ~ "Glaucoma",
         
         value %in% c("hermansky - pudlak syndrome", "hps", "hp", "autosomal recessive disorder", "herman", "hsp") ~ "Hermansky-Pudlak Syndrome",
         
         
-        
-        value %in% c("bleeding diath") ~ "Bleeding Diathesis",
         
         value %in% c("pulmona") ~ "Pulmonary Fibrosis",
         
@@ -167,11 +168,10 @@ map_disease_name <- function(value) {
         
         value %in% c("lu") ~ "Lungs",
         
-        str_detect(value, "parkinson") ~ "Parkinson's Disease",
+    
         
         str_detect(value, "huntington") ~ "Huntington's Disease",
         
-        value %in% c("pd") ~ "Parkinson Disease",
         
         str_detect(value, "kommerell") ~ "Kommerell's Diverticulum",
         
@@ -206,8 +206,6 @@ map_disease_name <- function(value) {
         
         value %in% c("hlhs") ~ "Hypoplastic Left Heart Syndrome",
         
-        
-        value %in% c("cscc") ~ "Cutaneous Squamous-Cell Carcinoma",
         
         value %in% c("cud") ~ "Cannabis Use Disorder",
         
@@ -244,7 +242,6 @@ disease_long = df_clean %>%
     mutate(std_name = map_disease_name(disease_entities)) %>%
     drop_na()
 
-View(head(disease_long))
 
 # BARPLOT -----------------------------------------------------------------
 
@@ -315,4 +312,5 @@ res_df <- as.data.frame(as.table(residuals)) %>%
     filter(abs(stdres) > 2) %>%
     arrange(desc(abs(stdres)))  
 
+View(disease_long)
 
