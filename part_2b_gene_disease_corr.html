@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Inna Cohen">
+
+<title>Gene-Disease Correlations</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="part_2b_gene_disease_corr_files/libs/clipboard/clipboard.min.js"></script>
+<script src="part_2b_gene_disease_corr_files/libs/quarto-html/quarto.js"></script>
+<script src="part_2b_gene_disease_corr_files/libs/quarto-html/popper.min.js"></script>
+<script src="part_2b_gene_disease_corr_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="part_2b_gene_disease_corr_files/libs/quarto-html/anchor.min.js"></script>
+<link href="part_2b_gene_disease_corr_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="part_2b_gene_disease_corr_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="part_2b_gene_disease_corr_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="part_2b_gene_disease_corr_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="part_2b_gene_disease_corr_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="part_2b_gene_disease_corr_files/libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+
+<script src="part_2b_gene_disease_corr_files/libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+
+<link href="part_2b_gene_disease_corr_files/libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
+
+<script src="part_2b_gene_disease_corr_files/libs/datatables-binding-0.33/datatables.js"></script>
+
+<script src="part_2b_gene_disease_corr_files/libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+
+<link href="part_2b_gene_disease_corr_files/libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
+
+<link href="part_2b_gene_disease_corr_files/libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet">
+
+<script src="part_2b_gene_disease_corr_files/libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+
+<link href="part_2b_gene_disease_corr_files/libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet">
+
+<script src="part_2b_gene_disease_corr_files/libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Gene-Disease Correlations</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Inna Cohen </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="loading-libraries-data" class="level1">
+<h1>Loading Libraries &amp; Data</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(table1)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DT)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>df <span class="ot">=</span> <span class="fu">read_csv</span>(<span class="st">"data/abstracts.csv"</span>, <span class="at">show_col_types =</span> F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="functions" class="level1">
+<h1>Functions</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>map_disease_name <span class="ot">&lt;-</span> <span class="cf">function</span>(value) {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">case_when</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">nchar</span>(value) <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="cn">NA_character_</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">#General Terms</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"cancer"</span>,<span class="st">"tumor"</span>,<span class="st">"malignancy"</span>, <span class="st">"malignancies"</span>,<span class="st">"carcinoma"</span>,<span class="st">"neoplasia"</span>,<span class="st">"malignant tumor"</span>, <span class="st">"tumor"</span>,<span class="st">"carcin"</span>) <span class="sc">~</span> <span class="st">"Cancer"</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"inflam"</span>, <span class="st">"inf"</span>, <span class="st">"##lammation"</span>,<span class="st">"inflammation"</span>, <span class="st">"allergic inflammation"</span>) <span class="sc">~</span> <span class="st">"Inflammation"</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"mental illness"</span>, <span class="st">"mental iless"</span>, <span class="st">"psychiatric illness"</span>, <span class="st">"psychiatric disorders"</span>, <span class="st">"mental disorders"</span>,<span class="st">"neuropsychiatric problems"</span>) <span class="sc">~</span> <span class="st">"Mental illness"</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"bleeding"</span>, <span class="st">"Bleeding Diathesis"</span>, <span class="st">"bleeding diathesis"</span>, <span class="st">"gingival bleeding"</span>, <span class="st">"epistaxis"</span>, <span class="st">"hemorrhage"</span>) <span class="sc">~</span> <span class="st">"Bleeding"</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"neurodegeneration"</span>, <span class="st">"brain proteinopathies"</span>,<span class="st">"proteinopathies"</span>,<span class="st">"neurodegenerative disorder"</span>,<span class="st">"neurodegenerative and mental disorders"</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"developmental and neurocognitive progressive deterioration"</span>,<span class="st">"neurodegeneration"</span>) <span class="sc">~</span> <span class="st">"Neurodegenerative disorders"</span>,</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">str_detect</span>(value, <span class="st">"alzheimer"</span>) <span class="sc">~</span> <span class="st">"Neurodegenerative disorders"</span>,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        <span class="fu">str_detect</span>(value, <span class="st">"parkinson"</span>) <span class="sc">~</span> <span class="st">"Neurodegenerative disorders"</span>,</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"pd"</span>) <span class="sc">~</span> <span class="st">"Neurodegenerative disorders"</span>,</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Cancer types</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"tumorige"</span>, <span class="st">"lung adenocarcinoma"</span>, <span class="st">"luad"</span>,<span class="st">"lung cancer"</span>, <span class="st">"Lung Cancer"</span>,<span class="st">"lung tumor"</span>, <span class="st">"non - small cell lung cancer"</span>,<span class="st">"nsclc"</span>) <span class="sc">~</span> <span class="st">"Lung Cancer"</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"hcc"</span>,<span class="st">"liver cancer"</span>,<span class="st">"Liver Cancer"</span>,<span class="st">"hepatocellular carcinoma"</span>, <span class="st">"liver hepatocellular carcinoma"</span>) <span class="sc">~</span> <span class="st">"Liver Cancer"</span>,</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"kirc"</span>, <span class="st">"Kidney Cancer"</span>, <span class="st">"renal cell carcinoma"</span>, <span class="st">"kidney renal clear cell carcinoma"</span>, <span class="st">"clear cell renal cell carcinoma"</span>, <span class="st">"renal cancer"</span>, <span class="st">"ccrcc"</span>) <span class="sc">~</span><span class="st">"Kidney Cancer"</span>,</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"breast cancer"</span>, <span class="st">"brea"</span>,<span class="st">"breast tumor"</span>, <span class="st">"gynecological malignancies"</span>, <span class="st">"cancerervical and uterine"</span>, <span class="st">"ovarian tumors"</span>, <span class="st">"ovarian cancer"</span>, <span class="st">"oc"</span>) <span class="sc">~</span> <span class="st">"Breast/Ovarian Cancer"</span>,</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"pca"</span>,<span class="st">"prostate cancer"</span>, <span class="st">"prostate carcinoma"</span>) <span class="sc">~</span> <span class="st">"Prostate Cancer"</span>,</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"ptc"</span>, <span class="st">"papillary thyroid carcinoma"</span>, <span class="st">"papillary thyroid cancer"</span>, <span class="st">"Papillary Thyroid Carcinoma"</span>) <span class="sc">~</span> <span class="st">"Papillary Thyroid Carcinoma"</span>,</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"gastric cancer"</span>, <span class="st">"gc"</span>, <span class="st">"gastrointestinal cancer"</span>, <span class="st">"gastrointestinal cancers"</span>) <span class="sc">~</span> <span class="st">"Gastric Cancer"</span>,</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"hnc"</span>,<span class="st">"head and neck cancer"</span>) <span class="sc">~</span> <span class="st">"Head and Neck Cancer"</span>,</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"brain tumor"</span>, <span class="st">"glioma"</span>, <span class="st">"gliomas"</span>, <span class="st">"brain gliomas"</span>, <span class="st">"neuroblastoma"</span>, <span class="st">"Neuroblastoma"</span>, <span class="st">"medulloblastoma"</span>, <span class="st">"pediatric tumor"</span>,<span class="st">"nb"</span>) <span class="sc">~</span> <span class="st">"Brain cancer"</span>,</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"all"</span>, <span class="st">"Acute Lymphoblastic Leukemia"</span>, <span class="st">"acute lymphoblastic leukemia"</span>) <span class="sc">~</span> <span class="st">"Acute Lymphoblastic Leukemia"</span>,</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"melanoma"</span>,<span class="st">"cscc"</span>) <span class="sc">~</span> <span class="st">"Skin cancer"</span>,</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>        <span class="co">#Anemia</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"fa"</span>, <span class="st">"Thalassemia"</span>, <span class="st">"Fanconi Anemia"</span>, <span class="st">"fanconi anemia"</span>) <span class="sc">~</span> <span class="st">"Anemia"</span>,</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"schizophrenia"</span>, <span class="st">"scz"</span>, <span class="st">"Schizophrenia"</span>, <span class="st">"schizophreniametab"</span>, <span class="st">"sczmetabolic traits"</span>) <span class="sc">~</span> <span class="st">"Schizophrenia"</span>,</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Depression"</span>,<span class="st">"mdd"</span>, <span class="st">"depression"</span>, <span class="st">"depressive disorder"</span>) <span class="sc">~</span> <span class="st">"Depression"</span>,</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"chronic kidney disease"</span>, <span class="st">"ckd"</span>, <span class="st">"chronic renal insufficiency"</span>, <span class="st">"ksd"</span>,</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"renal disease"</span>, <span class="st">"renal impairment"</span>, <span class="st">"impairment of renal function"</span>, </span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"kidney disease"</span>, <span class="st">"digestive and kidney disease"</span>, </span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"end - stage kidney disease"</span>, <span class="st">"hpsronic kidney disease"</span>, </span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"apol1 kidney disease"</span>, <span class="st">"proteinuric kidney diseases"</span>, </span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"kidney stone disease"</span>, <span class="st">"stone"</span>, <span class="st">"end - stage organ disease"</span>,</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"kidney stones"</span>, <span class="st">"urolithiasis"</span>,</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"kd"</span>, <span class="st">"eskd"</span>, <span class="st">"amkd"</span>, <span class="st">"dkd"</span>,</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"Kidney Disease"</span>, <span class="st">"kidney disorders"</span>, <span class="st">"kidney damage"</span>, <span class="st">"kidney cell injury"</span>,</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"diabetic kidney disease"</span>, <span class="st">"kidney transplant failure"</span>, <span class="st">"polycystic kidneys"</span>, <span class="st">"polycystic kidney disease"</span>,</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"hydronephrosis"</span>, <span class="st">"vesicoureteral reflux"</span>, <span class="st">"dysplastic kidneys"</span>, <span class="st">"kidney size"</span>) <span class="sc">~</span> <span class="st">"Kidney Disease"</span>,</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"##matory bowel disease"</span>, <span class="st">"ibd"</span>, <span class="st">"colitis"</span>, <span class="st">"granulomatous colitis"</span>, <span class="st">"inflammatory bowel disease"</span>, <span class="st">"Inflammatory Bowel Disease"</span>) <span class="sc">~</span> <span class="st">"Inflammatory Bowel Disease"</span>,</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Immunodeficiency"</span>, <span class="st">"disordered immunity"</span>, <span class="st">"nodeficiency"</span>) <span class="sc">~</span> <span class="st">"Immunodeficiency"</span>,</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"diabetes"</span>, <span class="st">"diabetes mellitus"</span>, <span class="st">"dm"</span>) <span class="sc">~</span> <span class="st">"Diabetes"</span>,</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>       </span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"oculocuta"</span>, <span class="st">"oca"</span>, <span class="st">"oca1"</span>, <span class="st">"oca type 1"</span>, <span class="st">"periodic albinism"</span>, <span class="st">"albinism"</span>,</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"albinism"</span>, <span class="st">"oculocutaneous albinism"</span>, <span class="st">"Albinism"</span>, <span class="st">"hypopigmentation"</span>, <span class="st">"periodic albino"</span>) <span class="sc">~</span> <span class="st">"Albinism"</span>,</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"sickle cell"</span>, <span class="st">"sickle cell anemia"</span>, <span class="st">"sickle cell disease"</span>, </span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"sca"</span>, <span class="st">"scd"</span>, <span class="st">"sse"</span>) <span class="sc">~</span> <span class="st">"Sickle Cell Disease"</span>,</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"idiopathic pulmonary fibrosis"</span>, <span class="st">"ipf"</span>, <span class="st">"pulmonary fibrosis"</span>, </span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"restrictive lung disease"</span>, <span class="st">"interstitial lung disease"</span>, <span class="st">"##iratory disease"</span>,</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"lung inflammation"</span>, <span class="st">"airway inflammation"</span>, <span class="st">"allergic airway inflammation"</span>, <span class="st">"asthma"</span>, <span class="st">"allergic asthma"</span>, <span class="st">"bronchial asthma"</span>) <span class="sc">~</span> <span class="st">"Lung Disease"</span>,</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"##cytop"</span>) <span class="sc">~</span> <span class="st">"Podocytopathy"</span>,</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>        <span class="fu">str_detect</span>(value, <span class="st">"enterella"</span>) <span class="sc">~</span> <span class="st">"Salmonella"</span>,</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"hearing loss"</span>, <span class="st">"genetic hearing loss"</span>, <span class="st">"deafness"</span>, </span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"sensorineural deafness"</span>, <span class="st">"sensorineural hearing loss"</span>, </span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"sensorineural disorders"</span>, <span class="st">"nonsyndromic deafness"</span>, </span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"autosomal recessive non - syndromic deafness"</span>, </span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"snhl"</span>, <span class="st">"hl"</span>) <span class="sc">~</span> <span class="st">"Hearing Loss"</span>,</span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"infertility"</span>, <span class="st">"azoospermia"</span>, <span class="st">"non - obstructive azoospermia"</span>, </span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"male infertility"</span>, <span class="st">"noa"</span>, <span class="st">"no"</span>) <span class="sc">~</span> <span class="st">"Infertility"</span>,</span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"glaucoma"</span>) <span class="sc">~</span> <span class="st">"Glaucoma"</span>,</span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"hermansky - pudlak syndrome"</span>, <span class="st">"hps"</span>, <span class="st">"hp"</span>, <span class="st">"autosomal recessive disorder"</span>, <span class="st">"herman"</span>, <span class="st">"hsp"</span>) <span class="sc">~</span> <span class="st">"Hermansky-Pudlak Syndrome"</span>,</span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"pulmona"</span>) <span class="sc">~</span> <span class="st">"Pulmonary Fibrosis"</span>,</span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"immu"</span>) <span class="sc">~</span> <span class="st">"Immunodeficiency"</span>,</span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"nec"</span>) <span class="sc">~</span> <span class="st">"Necrosis"</span>,</span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"parasuis"</span>, <span class="st">"glaesserella parasui"</span>, <span class="st">"para"</span>) <span class="sc">~</span> <span class="st">"Glaesserella Parasuis"</span>,</span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"thala"</span>) <span class="sc">~</span> <span class="st">"Thalassemia"</span>,</span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"hyper"</span>,  <span class="st">"hypertension"</span>, <span class="st">"Hypertension"</span>, <span class="st">"arterial hypertension"</span>) <span class="sc">~</span> <span class="st">"Hypertension"</span>,</span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"hy"</span>) <span class="sc">~</span> <span class="st">"Hypotoxic"</span>,</span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"cyt"</span>) <span class="sc">~</span> <span class="st">"Cytotoxicity"</span>,</span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"pe"</span>) <span class="sc">~</span> <span class="st">"Preeclampsia"</span>,</span>
+<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"bt"</span>) <span class="sc">~</span> <span class="st">"Bioavailable Testosterone"</span>,</span>
+<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-111"><a href="#cb2-111" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"dr"</span>) <span class="sc">~</span> <span class="st">"Nonsyndromic"</span>,</span>
+<span id="cb2-112"><a href="#cb2-112" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-113"><a href="#cb2-113" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"md"</span>) <span class="sc">~</span> <span class="st">"Ménière's Disease"</span>,</span>
+<span id="cb2-114"><a href="#cb2-114" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-115"><a href="#cb2-115" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"dis"</span>) <span class="sc">~</span> <span class="st">"Disease"</span>,</span>
+<span id="cb2-116"><a href="#cb2-116" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-117"><a href="#cb2-117" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"obes"</span>) <span class="sc">~</span> <span class="st">"Obesity"</span>,</span>
+<span id="cb2-118"><a href="#cb2-118" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-119"><a href="#cb2-119" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"cah"</span>) <span class="sc">~</span> <span class="st">"Congenital Adrenal Hyperplasia"</span>,</span>
+<span id="cb2-120"><a href="#cb2-120" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-121"><a href="#cb2-121" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"kfs"</span>, <span class="st">"kfs4"</span>) <span class="sc">~</span> <span class="st">"Klippel-Feil Syndrome"</span>,</span>
+<span id="cb2-122"><a href="#cb2-122" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-123"><a href="#cb2-123" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"kfa"</span>) <span class="sc">~</span> <span class="st">"Klippel-Feil Anomaly"</span>,</span>
+<span id="cb2-124"><a href="#cb2-124" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-125"><a href="#cb2-125" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"mld"</span>) <span class="sc">~</span> <span class="st">"Metachromatic Leukodystrophy"</span>,</span>
+<span id="cb2-126"><a href="#cb2-126" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-127"><a href="#cb2-127" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"mfs"</span>) <span class="sc">~</span> <span class="st">"Marfan Syndrome"</span>,</span>
+<span id="cb2-128"><a href="#cb2-128" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-129"><a href="#cb2-129" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"msd"</span>) <span class="sc">~</span> <span class="st">"Multiple Sulfatase Deficiency"</span>,</span>
+<span id="cb2-130"><a href="#cb2-130" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-131"><a href="#cb2-131" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"poi"</span>) <span class="sc">~</span> <span class="st">"Primary Ovarian Insufficiency"</span>,</span>
+<span id="cb2-132"><a href="#cb2-132" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-133"><a href="#cb2-133" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"purp"</span>, <span class="st">"rp"</span>) <span class="sc">~</span> <span class="st">"Strongylocentrotus Purpuratus"</span>,</span>
+<span id="cb2-134"><a href="#cb2-134" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-135"><a href="#cb2-135" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-136"><a href="#cb2-136" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"pai"</span>) <span class="sc">~</span> <span class="st">"Primary Adrenal Insufficiency"</span>,</span>
+<span id="cb2-137"><a href="#cb2-137" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-138"><a href="#cb2-138" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"dsd"</span>) <span class="sc">~</span> <span class="st">"Disorder of Sex Development"</span>,</span>
+<span id="cb2-139"><a href="#cb2-139" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-140"><a href="#cb2-140" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-141"><a href="#cb2-141" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"st"</span>, <span class="st">"ry fibrosis"</span>, <span class="st">"al"</span>, <span class="st">"##tension"</span>, <span class="st">"idy"</span>, <span class="st">"magp"</span>, <span class="st">"ol1"</span>, <span class="st">"in"</span>, <span class="st">"can"</span>, <span class="st">"choc"</span>, <span class="st">"ch"</span>, <span class="st">"ic"</span>, <span class="st">"sa"</span>, <span class="st">"resp"</span>) <span class="sc">~</span> <span class="cn">NA_character_</span>,</span>
+<span id="cb2-142"><a href="#cb2-142" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-143"><a href="#cb2-143" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"arsa"</span>, <span class="st">"arte"</span>, <span class="st">"ar"</span>) <span class="sc">~</span> <span class="st">"Aberrant Right Subclavian Artery"</span>,</span>
+<span id="cb2-144"><a href="#cb2-144" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-145"><a href="#cb2-145" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"cf"</span>,<span class="st">"cystic fibrosis"</span>) <span class="sc">~</span> <span class="st">"Cystic Fibrosis"</span>,</span>
+<span id="cb2-146"><a href="#cb2-146" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-147"><a href="#cb2-147" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-148"><a href="#cb2-148" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"lvh"</span>,  <span class="st">"Left Ventricular Hypertrophy"</span>, <span class="st">"left ventricular hypertrophy"</span>, <span class="st">"left ventricular ( lv ) hypertrophy"</span>) <span class="sc">~</span> <span class="st">"Left Ventricular Hypertrophy"</span>,</span>
+<span id="cb2-149"><a href="#cb2-149" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-150"><a href="#cb2-150" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"stroke"</span>, <span class="st">"Strokes"</span>) <span class="sc">~</span> <span class="st">"Strokes"</span>,</span>
+<span id="cb2-151"><a href="#cb2-151" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>( <span class="st">"cardiomyopathy"</span>, <span class="st">"cardiomyopathies"</span>) <span class="sc">~</span> <span class="st">"Cardiomyopathy"</span>,</span>
+<span id="cb2-152"><a href="#cb2-152" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-153"><a href="#cb2-153" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"mpn"</span>) <span class="sc">~</span> <span class="st">"Myeloproliferative Neoplasms"</span>,</span>
+<span id="cb2-154"><a href="#cb2-154" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-155"><a href="#cb2-155" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"lu"</span>) <span class="sc">~</span> <span class="st">"Lungs"</span>,</span>
+<span id="cb2-156"><a href="#cb2-156" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-157"><a href="#cb2-157" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-158"><a href="#cb2-158" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-159"><a href="#cb2-159" aria-hidden="true" tabindex="-1"></a>        <span class="fu">str_detect</span>(value, <span class="st">"huntington"</span>) <span class="sc">~</span> <span class="st">"Huntington's Disease"</span>,</span>
+<span id="cb2-160"><a href="#cb2-160" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-161"><a href="#cb2-161" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-162"><a href="#cb2-162" aria-hidden="true" tabindex="-1"></a>        <span class="fu">str_detect</span>(value, <span class="st">"kommerell"</span>) <span class="sc">~</span> <span class="st">"Kommerell's Diverticulum"</span>,</span>
+<span id="cb2-163"><a href="#cb2-163" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-164"><a href="#cb2-164" aria-hidden="true" tabindex="-1"></a>        <span class="fu">str_detect</span>(value, <span class="st">"ménière"</span>) <span class="sc">~</span> <span class="st">"Ménière's Disease"</span>,</span>
+<span id="cb2-165"><a href="#cb2-165" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-166"><a href="#cb2-166" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"dl"</span>) <span class="sc">~</span> <span class="st">"Dysphagia Lusoria"</span>,</span>
+<span id="cb2-167"><a href="#cb2-167" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-168"><a href="#cb2-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-169"><a href="#cb2-169" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-170"><a href="#cb2-170" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"fat"</span>) <span class="sc">~</span> <span class="st">"Fat Droplet Formation"</span>,</span>
+<span id="cb2-171"><a href="#cb2-171" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-172"><a href="#cb2-172" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"cmd"</span>) <span class="sc">~</span> <span class="st">"Congenital Muscular Dystrophy"</span>,</span>
+<span id="cb2-173"><a href="#cb2-173" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-174"><a href="#cb2-174" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"gerd"</span>) <span class="sc">~</span> <span class="st">"Gastroesophageal Reflux Disease"</span>,</span>
+<span id="cb2-175"><a href="#cb2-175" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-176"><a href="#cb2-176" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"malf"</span>) <span class="sc">~</span> <span class="st">"Malformations"</span>,</span>
+<span id="cb2-177"><a href="#cb2-177" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-178"><a href="#cb2-178" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"csvd"</span>) <span class="sc">~</span> <span class="st">"Cerebral Small-Vessel Disease"</span>,</span>
+<span id="cb2-179"><a href="#cb2-179" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-180"><a href="#cb2-180" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"pms"</span>, <span class="st">"pm"</span>) <span class="sc">~</span> <span class="st">"Phelan-McDermid Syndrome"</span>,</span>
+<span id="cb2-181"><a href="#cb2-181" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-182"><a href="#cb2-182" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"chd"</span>, <span class="st">"cad"</span>, <span class="st">"Heart Disease"</span>, <span class="st">"coronary artery disease"</span>, <span class="st">"cardiovascular disease"</span>, <span class="st">"cardiac diseases"</span>) <span class="sc">~</span> <span class="st">"Heart Disease"</span>,</span>
+<span id="cb2-183"><a href="#cb2-183" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-184"><a href="#cb2-184" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-185"><a href="#cb2-185" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"osa"</span>) <span class="sc">~</span> <span class="st">"Obstructive Sleep Apnea"</span>,</span>
+<span id="cb2-186"><a href="#cb2-186" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-187"><a href="#cb2-187" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"fsgs"</span>) <span class="sc">~</span> <span class="st">"Focal Segmental Glomerular Sclerosis"</span>,</span>
+<span id="cb2-188"><a href="#cb2-188" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-189"><a href="#cb2-189" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"vus"</span>) <span class="sc">~</span> <span class="st">"Variants of Unknown Significance"</span>,</span>
+<span id="cb2-190"><a href="#cb2-190" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-191"><a href="#cb2-191" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"sr"</span>, <span class="st">"srd"</span>) <span class="sc">~</span> <span class="st">"Specific Reading Disability"</span>,</span>
+<span id="cb2-192"><a href="#cb2-192" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-193"><a href="#cb2-193" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"hlhs"</span>) <span class="sc">~</span> <span class="st">"Hypoplastic Left Heart Syndrome"</span>,</span>
+<span id="cb2-194"><a href="#cb2-194" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-195"><a href="#cb2-195" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-196"><a href="#cb2-196" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"cud"</span>) <span class="sc">~</span> <span class="st">"Cannabis Use Disorder"</span>,</span>
+<span id="cb2-197"><a href="#cb2-197" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-198"><a href="#cb2-198" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"od"</span>) <span class="sc">~</span> <span class="st">"Organ Dysfunction"</span>,</span>
+<span id="cb2-199"><a href="#cb2-199" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-200"><a href="#cb2-200" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"ptoa"</span>) <span class="sc">~</span> <span class="st">"Post-Traumatic Osteoarthritis"</span>,</span>
+<span id="cb2-201"><a href="#cb2-201" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-202"><a href="#cb2-202" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"ntd"</span>, <span class="st">"ntds"</span>) <span class="sc">~</span> <span class="st">"Neural Tube Defects"</span>,</span>
+<span id="cb2-203"><a href="#cb2-203" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-204"><a href="#cb2-204" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"rs"</span>) <span class="sc">~</span> <span class="st">"Respiratory Sinus Arrhythmia"</span>,</span>
+<span id="cb2-205"><a href="#cb2-205" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-206"><a href="#cb2-206" aria-hidden="true" tabindex="-1"></a>        value <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"scm"</span>) <span class="sc">~</span> <span class="st">"Subclinical Mastitis"</span>,</span>
+<span id="cb2-207"><a href="#cb2-207" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-208"><a href="#cb2-208" aria-hidden="true" tabindex="-1"></a>        <span class="cn">TRUE</span> <span class="sc">~</span> value</span>
+<span id="cb2-209"><a href="#cb2-209" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-210"><a href="#cb2-210" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="data-cleaning" class="level1">
+<h1>Data Cleaning</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df_clean <span class="ot">=</span> df <span class="sc">%&gt;%</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">#not relevant publication</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(pmid <span class="sc">!=</span> <span class="st">"39406866"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">disease_entities =</span> <span class="fu">str_replace_all</span>(disease_entities, <span class="st">"</span><span class="sc">\\</span><span class="st">[|</span><span class="sc">\\</span><span class="st">]|'"</span>, <span class="st">""</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">disease_entities =</span> <span class="fu">str_split</span>(disease_entities, <span class="st">",</span><span class="sc">\\</span><span class="st">s*"</span>))</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>disease_long <span class="ot">=</span> df_clean <span class="sc">%&gt;%</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unnest</span>(disease_entities) <span class="sc">%&gt;%</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">disease_entities =</span> <span class="fu">str_to_lower</span>(<span class="fu">str_trim</span>(disease_entities))) <span class="sc">%&gt;%</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">std_name =</span> <span class="fu">map_disease_name</span>(disease_entities)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(disease_entities <span class="sc">!=</span> <span class="st">""</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">std_name =</span> <span class="fu">map_disease_name</span>(disease_entities)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">drop_na</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="plots" class="level1">
+<h1>Plots</h1>
+<section id="barplot" class="level2">
+<h2 class="anchored" data-anchor-id="barplot">Barplot</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>top_terms <span class="ot">=</span> disease_long <span class="sc">%&gt;%</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">count</span>(std_name, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>top_terms <span class="sc">%&gt;%</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">slice_max</span>(n, <span class="at">n =</span> <span class="dv">20</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(std_name, n), <span class="at">y =</span> n)) <span class="sc">+</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_col</span>(<span class="at">fill =</span> <span class="st">"steelblue"</span>) <span class="sc">+</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">"Top 20 Most Frequent Disease Mentions"</span>,</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> <span class="st">"Disease Entity"</span>, <span class="at">y =</span> <span class="st">"Frequency"</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part_2b_gene_disease_corr_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="heatmap" class="level2">
+<h2 class="anchored" data-anchor-id="heatmap">Heatmap</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>gene_disease <span class="ot">=</span> disease_long <span class="sc">%&gt;%</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">count</span>(gene, std_name, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>gene_disease_matrix <span class="ot">=</span> disease_long <span class="sc">%&gt;%</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">count</span>(gene, std_name) <span class="sc">%&gt;%</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> std_name, <span class="at">values_from =</span> n, <span class="at">values_fill =</span> <span class="dv">0</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>gene_disease_long <span class="ot">=</span> gene_disease_matrix <span class="sc">%&gt;%</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="sc">-</span>gene, <span class="at">names_to =</span> <span class="st">"disease"</span>, <span class="at">values_to =</span> <span class="st">"count"</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>top_diseases <span class="ot">=</span> gene_disease_long <span class="sc">%&gt;%</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(disease) <span class="sc">%&gt;%</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">total =</span> <span class="fu">sum</span>(count)) <span class="sc">%&gt;%</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arrange</span>(<span class="fu">desc</span>(total)) <span class="sc">%&gt;%</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">slice_max</span>(total, <span class="at">n =</span> <span class="dv">20</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(disease)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>heatmap_data <span class="ot">=</span> gene_disease_long <span class="sc">%&gt;%</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(disease <span class="sc">%in%</span> top_diseases)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(heatmap_data, <span class="fu">aes</span>(<span class="at">x =</span> disease, <span class="at">y =</span> gene, <span class="at">fill =</span> count)) <span class="sc">+</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_tile</span>(<span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">"white"</span>, <span class="at">high =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">"Gene-Disease Co-occurrence Heatmap"</span>,</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> <span class="st">"Disease Entity"</span>,</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="st">"Gene"</span>,</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>        <span class="at">fill =</span> <span class="st">"Co-occurrence"</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part_2b_gene_disease_corr_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="statistical-tests" class="level1">
+<h1>Statistical Tests</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>contingency_tbl <span class="ot">&lt;-</span> <span class="fu">table</span>(disease_long<span class="sc">$</span>gene, disease_long<span class="sc">$</span>std_name)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>chi_test <span class="ot">&lt;-</span> <span class="fu">chisq.test</span>(contingency_tbl)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>chi_test<span class="sc">$</span>p.value  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4.624622e-47</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>residuals <span class="ot">&lt;-</span> chi_test<span class="sc">$</span>stdres  </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Significant results</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>sig_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">as.table</span>(residuals)) <span class="sc">%&gt;%</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">gene =</span> Var1, <span class="at">disease =</span> Var2, <span class="at">stdres =</span> Freq) <span class="sc">%&gt;%</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="fu">abs</span>(stdres) <span class="sc">&gt;</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">arrange</span>(<span class="fu">desc</span>(<span class="fu">abs</span>(stdres)))  </span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>sig_df <span class="sc">%&gt;%</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">datatable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="datatables html-widget html-fill-item" id="htmlwidget-d744125c81bb0fa4b57d" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-d744125c81bb0fa4b57d">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100","101","102","103","104","105","106","107","108","109","110","111","112","113","114","115","116","117","118","119","120","121","122","123","124","125","126","127","128","129","130","131","132","133","134","135","136","137","138","139","140","141","142","143","144","145","146","147","148","149","150","151","152","153","154","155","156","157","158","159","160","161","162","163","164","165","166","167","168","169","170","171","172","173","174","175","176","177","178","179","180","181","182","183","184","185","186","187","188","189","190","191","192","193","194","195","196","197","198","199","200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299","300","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","317","318","319","320","321","322","323","324","325","326","327","328","329","330","331","332","333","334","335","336","337","338","339","340","341","342","343","344","345","346","347","348","349","350","351","352","353","354","355","356","357","358","359","360","361","362","363","364","365","366","367","368","369","370","371","372","373","374","375","376","377","378","379","380","381","382","383","384","385","386","387","388","389","390","391","392","393","394","395","396","397","398","399","400","401","402","403","404","405","406","407","408","409","410","411","412","413","414","415","416","417","418","419","420","421","422","423","424","425","426","427","428","429","430","431","432","433","434","435"],["APOL1","TRIOBP","HPS4","HPS4","ARSA","PIWIL3","PIWIL3","SEC14L3","TRIOBP","ARSA","MYO18B","HPS4","PIWIL3","EFCAB6","EFCAB6","SUN2","TRIOBP","HPS4","APOL1","MYO18B","CELSR1","EFCAB6","ARSA","SFI1","EFCAB6","MYO18B","MYO18B","MYO18B","MYO18B","CELSR1","CELSR1","SFI1","SFI1","SFI1","SFI1","SFI1","SFI1","SFI1","PIWIL3","SFI1","SFI1","PIWIL3","PIWIL3","PIWIL3","SFI1","SFI1","PIWIL3","PIWIL3","SFI1","SFI1","PIWIL3","PIWIL3","SFI1","PIWIL3","PIWIL3","PIWIL3","PIWIL3","SFI1","SFI1","SFI1","SFI1","SFI1","PIWIL3","SFI1","SFI1","SFI1","SFI1","SFI1","PIWIL3","SFI1","TRIOBP","SEC14L3","SEC14L3","PIWIL3","EFCAB6","EFCAB6","EFCAB6","EFCAB6","EFCAB6","EFCAB6","EFCAB6","EFCAB6","EFCAB6","EFCAB6","EFCAB6","EFCAB6","EFCAB6","EFCAB6","EFCAB6","EFCAB6","EFCAB6","EFCAB6","EFCAB6","APOL1","ARSA","TRIOBP","ARSA","SEC14L3","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SUN2","SEC14L3","SEC14L3","SEC14L3","SEC14L3","SEC14L3","SEC14L3","SEC14L3","SEC14L3","SEC14L3","SEC14L3","SEC14L3","SEC14L3","SEC14L3","SEC14L3","SEC14L3","SEC14L3","SEC14L3","SEC14L3","SEC14L3","SEC14L3","SEC14L3","SEC14L3","APOL1","APOL1","APOL1","HPS4","HPS4","HPS4","HPS4","HPS4","TRIOBP","APOL1","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","MYO18B","TRIOBP","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","CELSR1","ARSA","TRIOBP","SUN2","SUN2","HPS4","SFI1","SFI1","SFI1","PIWIL3","SFI1","SFI1","TRIOBP","ARSA","ARSA","ARSA","ARSA","ARSA","ARSA","ARSA","ARSA","ARSA","ARSA","ARSA","TRIOBP","TRIOBP","ARSA","TRIOBP","ARSA","ARSA","ARSA","ARSA","ARSA","ARSA","TRIOBP","ARSA","TRIOBP","ARSA","TRIOBP","TRIOBP","TRIOBP","ARSA","ARSA","ARSA","ARSA","ARSA","TRIOBP","ARSA","ARSA","ARSA","ARSA","TRIOBP","TRIOBP","TRIOBP","ARSA","ARSA","ARSA","ARSA","ARSA","ARSA","ARSA","ARSA","ARSA","TRIOBP","ARSA","ARSA","ARSA","ARSA","ARSA","TRIOBP","ARSA","ARSA","ARSA","TRIOBP","ARSA","TRIOBP","ARSA","ARSA","TRIOBP","TRIOBP","ARSA","ARSA","ARSA","ARSA","ARSA","ARSA","TRIOBP","TRIOBP","ARSA","ARSA","ARSA","ARSA","ARSA","ARSA","ARSA","EFCAB6","EFCAB6","EFCAB6","TRIOBP","HPS4","HPS4","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","APOL1","MYO18B","HPS4","HPS4","HPS4","HPS4","HPS4","HPS4","HPS4","HPS4","HPS4","HPS4","HPS4","HPS4","HPS4","HPS4","HPS4","HPS4","HPS4","HPS4","HPS4","HPS4","HPS4","HPS4","HPS4","HPS4","HPS4","SEC14L3","SEC14L3","SEC14L3","HPS4","ARSA","EFCAB6","SFI1","PIWIL3","APOL1","PIWIL3","SFI1","SFI1","SFI1","PIWIL3","ARSA","SEC14L3","EFCAB6","SEC14L3","HPS4","HPS4","EFCAB6","EFCAB6","EFCAB6","SEC14L3","SUN2"],["Kidney Disease","Hearing Loss","Hermansky-Pudlak Syndrome","Albinism","Aberrant Right Subclavian Artery","Papillary Thyroid Carcinoma","Breast/Ovarian Cancer","Lung Disease","Infertility","metachromatic leukodystrophy","Klippel-Feil Syndrome","Bleeding","Strongylocentrotus Purpuratus","Schizophrenia","Anemia","Prostate Cancer","Mental illness","Inflammatory Bowel Disease","Sickle Cell Disease","klippel - feil syndrome","Phelan-McDermid Syndrome","Neurodegenerative disorders","Metachromatic Leukodystrophy","Cystic Fibrosis","Left Ventricular Hypertrophy","Acute Lymphoblastic Leukemia","Cardiomyopathy","Head and Neck Cancer","Specific Reading Disability","Neural Tube Defects","phelan - mcdermid syndrome","axonal degeneration","axonolysis","axonotmes","axonotmesis","bacterial lung infection","centriolar defects","cognitive and metabolic sequel","cryptorchidism","edema","embryonic malignancy","gyneco","hgsoc","hypogonadotropic hypogonadism","lung infection","malaria","malde","maligna","muscle atrophy","muscle degeneration","ncies","nervous system disease","Obesity","oligozoospermia","ovarian insufficiency","primary","Primary Ovarian Insufficiency","pseudomonas aeruginosa","pseudomonas infection","pseudomonas lung infection","respiratory failure","sciatic nerve crush","sility","spitomum","staphylococcus aureus infection","stomum","surgical injury","syndromic mental retardation","tumour","xeroderma pigmentosum","Brain cancer","Kidney Cancer","Hypotoxic","Liver Cancer","autosomal recessive diseases","cardiac hypertrophy","cardiometabolic traits","cerebro - oculo - facio - skeletal syndrome","ciliopathies","consanguinity","der of sex development","disor","disorder of sex development","Disorder of Sex Development","endogamy","motile cilia","myeloproliferative neoplasm","myeloproliferative neoplasms","Myeloproliferative Neoplasms","skeletal deformities","skin disease","Strokes","traits","Hypertension","artery","Ménière's Disease","vascular anomaly","Inflammation","body weight","cardiovascular impairment","cholelithiasis","chromosome","congenital muscular dystrophy","Congenital Muscular Dystrophy","Fat Droplet Formation","fistula","flavivirus infection","flavivirus infections","flaviviruses","gastroesophageal reflux disease","Gastroesophageal Reflux Disease","hsv - 1 infections","Huntington's Disease","hutchinson - gilford progeria syndrome","iatrogenic genitourinary ( gu ) trauma","iatrogenic genitourinary trauma","inherited neuromuscular disease","inited neuromuscular disease","l - cmd","liver disease","metabolic syndrome","necroptosis","premature aging disorder","st tumor","stricture","strictures","tropical diseases","urethrocutaneous","vascular pathologies","airway viral infection","aller","allergy","convergent and extension ( ce ) defects","deration / necrosis","infection with salmonella","inflammatory disease of the airways","left ventricular ( lv ) remodeling","left ventricular remodeling","liver di","lung","Lungs","lv remodel","lv remodeling","nafld","Necrosis","nonalcoholic fatty liver","nonalcoholic fatty liver disease","rosis","salmonella","Salmonella","vascular defects","albuminuria","preeclampsia","proteinuria","genetic diseases","Glaesserella Parasuis","nystagmus","pigmentation","strabismus","Depression","Gastric Cancer","abnormal","arrhythmia","arthrogryposis","cardiac age","cardiac age acceleration","chromosomal abnormalities","concentric hypertrophy","congenital disorder","csccs","cutaneous squamous - cell carcinoma","dysmorphic","facial dysmorphism","fetal","fetal microcephaly","fetal structural abnormalities","geometrytolic and di","hypoplastic left heart syndrome","Hypoplastic Left Heart Syndrome","inherited syndrome","Klippel-Feil Anomaly","klippel - feil anomaly","limited cervical range of motion","myocardial disarray","myopathy","neine myopathy","reading difficulty","reading disability","schwannomasary","schwannomatosis","short neck","short stature","single - gene disorders","skeletal deformity","spinal deformities","spinal disease","sudden arrhythmic death","sudden cardiac death","temporal bone anomalies","Variants of Unknown Significance","Neurodegenerative disorders","arthritis","cadasil","caudal developmental defects","caudal dysgenesis","caudal regression","cerebral","cerebral autosomal dominant arteriopathy","Cerebral Small-Vessel Disease","chronic lymphocytic leukemia","conduct problems","congenital abnormalities","congenital anomalies of the kidney and urinary tract","developmental defects","fetal hydrops","fetal pleural effusions","gastrointest","genetic condition","genitourinary tract and hindgut defects","hepato - pancreatic diseases","hindgut malformation","impaired glucose metabolism","kidney / ureter defects","leukoencephalopathy","logistic organ dysfunction","Malformations","migraines","neural tube","neural tube defect","neural tube defects","organ dysfunction","Organ Dysfunction","ormation","pcos","phelan - mcdermid ) syndrome","polycystic ovary syndrome","Post-Traumatic Osteoarthritis","post - traumatic osteoarthritis","postoperative organ dysfunctionital heart","rare disease","reproductive endocrine disorders","respiratory dysfunction","sacculation","saulation","sirenomelia","strokes","structural malformations","subcortical infarcts","vascular dementia","yellow na","metabolic disease","Kidney Cancer","Cancer","Breast/Ovarian Cancer","Lung Cancer","congenital adrenal hyperplasia","Congenital Adrenal Hyperplasia","genetic disorder","hiv infection","hypoxia","microcephaly","abdominal pain","aberrant right subclavian artery","adrenal insufficiency","aggression","aneurysm","aneurysms","arant right sub","arteria lusoria","arteria lusoria aneurysm","atic pollution","autosomal recessive lysosomal storage disease","behavioral disturbances","Bioavailable Testosterone","bipolar disorder","bone marrow failure","brain diseases","cannabis use disorder","Cannabis Use Disorder","chromosomal anomalies","chromosomal or structural abnormalities","compression","congenital vascular anomaly","deafness - infertility syndrome","deficiency of arylsulfatase a","deficiency of triobp","demyelinating","Disease","disorder of the inner ear","dizziness","down - syndrome","dysphagia","dysphagia lusoria","Dysphagia Lusoria","emotional aggression","endolymphatic hydrops","esophageal cancer","esophageal compression","esophageal stenosis","fetal aberrant right subclavian artery","fibro","Glaucoma","impairments of social and cognitive functions","infectious diseasesyloc","Kommerell's Diverticulum","leukodystrophy","lusoria artery","lysosomal storage disorder","marfan syndrome","Marfan Syndrome","mastitis","metachromatic leuk","monary","multiple suatase deficiency","Multiple Sulfatase Deficiency","neurodegenerative disorders","neurologic and psychiatric symptoms","neurological deficits","Nonsyndromic","obstructive sleep apnea","Obstructive Sleep Apnea","odynophagia","pmonary fibrosis","polyspermy","prelingual","primary adrenal insufficiency","Primary Adrenal Insufficiency","protein illnesses","protein impairments","psychomotor deterioration","respiratory sinus arrhythmia","Respiratory Sinus Arrhythmia","right sub","subclinical mastitis","Subclinical Mastitis","syndromic","tinnitus","trauma","triple a syndrome","trisomy 21","use disorder","vascular malformation","weight loss","Kidney Disease","disease","hypertensive","toxicity","Schizophrenia","fibrosis","Immunodeficiency","apol1","apol1 - kd","cardiovascular complications","cytotoxicity","Cytotoxicity","deaths","diabetic","dyslipidemia","eclampsia","end - organ dysfunction","endothelial dysfunction","Focal Segmental Glomerular Sclerosis","function","gastric mucosal lesions","glomerulosclerosis","healthcare","healthties","hiv aids","hyperuricemia","insulin resistance","losomal and mitochondrial d","loss of kidney function","mitochondrial dys","otoxi","otoxicity","Podocytopathy","Preeclampsia","preeclamptic","preterm birth","segmental glomerular sclerosis","seizures","Thalassemia","trypanosomiasis","vascular calcification","Kidney Disease","african swine fever","bleeding diath","bruising","colonic bleeding","cough","dyspnoea","foveal hypoplasia","glässer disease","infection of the respiratory tract","laessere","liver diseases","lysosomal dysfunction","neonatal morbidities","neutropenia","oral diseases","pathogen infections","photophobia","porcine reproductive and respiratory syndrome","Pulmonary Fibrosis","rare diseases","reduced visual acuity","salmonella enterica","syndrome","typhoid fever","zoolaessere","hypertensive","poxia","thrombus","Lung Disease","Depression","Hypertension","Heart Disease","Infertility","Diabetes","Cystic Fibrosis","lung disease","metabolic disease","obesity","pancreatic cancer","Cancer","Kidney Disease","Heart Disease","Cancer","birth defects","Liver Cancer","death","pain","Skin cancer","Lung Cancer","Kidney Disease"],[13.00559087269839,12.24080363288679,11.33694820014857,8.566851681865508,7.40370777022832,7.352513650614477,6.691381649271094,6.299847194071207,6.296954065295416,6.249545317325423,6.206992080273707,6.035173531191648,5.999609053121479,5.784731043776929,5.66011939975794,5.629118936837007,5.561490678256156,5.505932595121182,5.494754512696919,5.372101819629182,5.29647319421736,5.028594345674653,4.83491164039997,4.765165366827431,4.479614803396928,4.38360433491259,4.38360433491259,4.38360433491259,4.38360433491259,4.32189180947471,4.32189180947471,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.239757570264368,4.235671116678266,4.14568366575025,4.059975601000771,4.01100337695978,3.999849633742135,3.999849633742135,3.999849633742135,3.999849633742135,3.999849633742135,3.999849633742135,3.999849633742135,3.999849633742135,3.999849633742135,3.999849633742135,3.999849633742135,3.999849633742135,3.999849633742135,3.999849633742135,3.999849633742135,3.999849633742135,3.999849633742135,3.999849633742135,3.999849633742135,3.975436316487562,3.945260223537539,3.945260223537539,3.945260223537539,3.845326898231556,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.832897443984487,3.648915253210033,3.648915253210033,3.648915253210033,3.648915253210033,3.648915253210033,3.648915253210033,3.648915253210033,3.648915253210033,3.648915253210033,3.648915253210033,3.648915253210033,3.648915253210033,3.648915253210033,3.648915253210033,3.648915253210033,3.648915253210033,3.648915253210033,3.648915253210033,3.648915253210033,3.648915253210033,3.648915253210033,3.648915253210033,3.511196320456246,3.511196320456246,3.511196320456246,3.475826761474991,3.475826761474991,3.475826761474991,3.475826761474991,3.475826761474991,3.449829306501271,3.305983775723317,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.097771788033377,3.0923315902426,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.05416125531554,3.015681267857969,2.983944529391347,2.938405163959343,2.923717407680761,2.909765612613612,2.83271696873417,2.83271696873417,2.83271696873417,2.83271696873417,2.83271696873417,2.83271696873417,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,2.788006143617554,-2.756298371271509,2.652950357513663,2.652950357513663,2.652950357513663,2.628067221960745,2.604117673954755,2.604117673954755,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,2.481265203870834,-2.480678797073875,2.456270516030354,2.456270516030354,2.456270516030354,2.456270516030354,2.456270516030354,2.456270516030354,2.456270516030354,2.456270516030354,2.456270516030354,2.456270516030354,2.456270516030354,2.456270516030354,2.456270516030354,2.456270516030354,2.456270516030354,2.456270516030354,2.456270516030354,2.456270516030354,2.456270516030354,2.456270516030354,2.456270516030354,2.456270516030354,2.456270516030354,2.456270516030354,2.456270516030354,2.387616222723469,2.387616222723469,2.387616222723469,2.345383899961453,2.332336903958133,2.307261318685203,2.28674784999,2.28674784999,2.211598407236516,2.177817083040385,2.177817083040385,2.177817083040385,2.177817083040385,2.177817083040385,-2.127943485382679,-2.105989385746279,2.092803949025423,2.064361350624749,2.052434704648177,2.052434704648177,2.02276011647331,2.02276011647331,2.02276011647331,2.006749252015323,-2.004900184534947]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>gene<\/th>\n      <th>disease<\/th>\n      <th>stdres<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":3},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"gene","targets":1},{"name":"disease","targets":2},{"name":"stdres","targets":3}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

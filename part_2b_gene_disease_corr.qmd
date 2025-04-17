@@ -1,16 +1,27 @@
+---
+title: "Gene-Disease Correlations"
+author: "Inna Cohen"
+format: html
+editor: visual
+execute: 
+    warning: false
+    message: false
+---
 
+# Loading Libraries & Data
 
-# LOADING LIBARIES --------------------------------------------------------
-
-
+```{r}
 library(tidyverse)
 library(stringr)
 library(table1)
+library(DT)
 
-df = read_csv("abstracts.csv")
+df = read_csv("data/abstracts.csv", show_col_types = F)
+```
 
+# Functions
 
-# FUNCTIONS ---------------------------------------------------------------
+```{r}
 map_disease_name <- function(value) {
     case_when(
     
@@ -224,9 +235,11 @@ map_disease_name <- function(value) {
 }
 
 
+```
 
-# CLEANING DISEASE ENTITIES -----------------------------------------------
+# Data Cleaning
 
+```{r}
 df_clean = df %>%
     #not relevant publication
     filter(pmid != "39406866") %>%
@@ -242,8 +255,13 @@ disease_long = df_clean %>%
     mutate(std_name = map_disease_name(disease_entities)) %>%
     drop_na()
 
+```
 
-# BARPLOT -----------------------------------------------------------------
+# Plots
+
+## Barplot
+
+```{r}
 
 top_terms = disease_long %>%
     count(std_name, sort = TRUE)
@@ -259,15 +277,14 @@ top_terms %>%
     ) +
     theme_minimal()
 
+```
 
+## Heatmap
 
-
-# HEATMAP -----------------------------------------------------------------
-
+```{r}
 
 gene_disease = disease_long %>%
     count(gene, std_name, sort = TRUE)
-
 
 gene_disease_matrix = disease_long %>%
     count(gene, std_name) %>%
@@ -298,19 +315,24 @@ ggplot(heatmap_data, aes(x = disease, y = gene, fill = count)) +
     ) +
     theme_minimal() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
 
+# Statistical Tests
 
-# STAT TESTS -------------------------------------------------------
-
+```{r}
 contingency_tbl <- table(disease_long$gene, disease_long$std_name)
 chi_test <- chisq.test(contingency_tbl)
 chi_test$p.value  
 residuals <- chi_test$stdres  
 
-res_df <- as.data.frame(as.table(residuals)) %>%
+#Significant results
+sig_df <- as.data.frame(as.table(residuals)) %>%
     rename(gene = Var1, disease = Var2, stdres = Freq) %>%
     filter(abs(stdres) > 2) %>%
     arrange(desc(abs(stdres)))  
 
-View(disease_long)
+
+sig_df %>%
+    datatable()
+```
 
