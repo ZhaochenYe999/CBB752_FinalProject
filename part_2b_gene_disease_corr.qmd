@@ -1,7 +1,11 @@
 ---
 title: "Gene-Disease Correlations"
 author: "Inna Cohen"
-format: html
+format:
+  html:
+    fig-width: 10
+    fig-height: 10
+
 editor: visual
 execute: 
     warning: false
@@ -15,6 +19,11 @@ library(tidyverse)
 library(stringr)
 library(table1)
 library(DT)
+library(dplyr)
+library("tm")
+library("SnowballC")
+library("wordcloud")
+library("RColorBrewer")
 
 df = read_csv("data/abstracts.csv", show_col_types = F)
 ```
@@ -267,16 +276,26 @@ top_terms = disease_long %>%
     count(std_name, sort = TRUE)
 
 top_terms %>%
-    slice_max(n, n = 20) %>%
-    ggplot(aes(x = reorder(std_name, n), y = n)) +
-    geom_col(fill = "steelblue") +
-    coord_flip() +
-    labs(
-        title = "Top 20 Most Frequent Disease Mentions",
-        x = "Disease Entity", y = "Frequency"
-    ) +
-    theme_minimal()
-
+  slice_max(n, n = 20) %>%
+  ggplot(aes(x = reorder(std_name, n), y = n)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(
+    title = "Top 20 Most Frequent Disease Mentions",
+    x = "Disease Entity", 
+    y = "Frequency"
+  ) +
+  theme_minimal() +
+theme(
+    plot.title = element_text(size = 20, face = "bold", hjust = 0.5),
+    axis.title.x = element_text(size = 16),
+    axis.title.y = element_text(size = 16),
+    axis.text.x = element_text(size = 14),
+    axis.text.y = element_text(size = 14),
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 12),
+    plot.margin = margin(1, 1, 2, 2, "cm")
+  )
 ```
 
 ## Heatmap
@@ -305,17 +324,121 @@ heatmap_data = gene_disease_long %>%
 
 
 ggplot(heatmap_data, aes(x = disease, y = gene, fill = count)) +
-    geom_tile(color = "white") +
-    scale_fill_gradient(low = "white", high = "red") +
-    labs(
-        title = "Gene-Disease Co-occurrence Heatmap",
-        x = "Disease Entity",
-        y = "Gene",
-        fill = "Co-occurrence"
-    ) +
-    theme_minimal() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "red") +
+  labs(
+    title = "Gene-Disease Co-occurrence Heatmap",
+    x = "Disease Entity",
+    y = "Gene",
+    fill = "Co-occurrence"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 20, face = "bold", hjust = 0.5),
+    axis.title.x = element_text(size = 16, face = "bold"),
+    axis.title.y = element_text(size = 16, face = "bold"),
+    axis.text.x = element_text(size = 14, angle = 45, hjust = 1),
+    axis.text.y = element_text(size = 14),
+    legend.title = element_text(size = 14, face = "bold"),
+    legend.text = element_text(size = 12),
+    plot.margin = margin(1, 1, 2, 2, "cm")
+  )
+
+
 ```
+
+## Word Cloud
+
+```{r}
+
+df <- disease_long %>%
+    select(gene, disease_entities) %>%
+    filter(gene == goi)
+
+docs <- Corpus(VectorSource(df))
+toSpace <- content_transformer(function(x, pattern) {
+  return(gsub(pattern, " ", x))
+})
+
+docs <- tm_map(docs, toSpace, "/")
+docs <- tm_map(docs, toSpace, "@")
+docs <- tm_map(docs, toSpace, "#")
+
+docs <- tm_map(docs, content_transformer(tolower))
+docs <- tm_map(docs, removePunctuation)
+docs <- tm_map(docs, removeNumbers)
+docs <- tm_map(docs, removeWords, stopwords("english"))
+docs <- tm_map(docs, stripWhitespace)
+
+dtm <- TermDocumentMatrix(docs)
+m <- as.matrix(dtm)
+word_freq <- sort(rowSums(m), decreasing = TRUE)
+word_df <- data.frame(word = names(word_freq), freq = word_freq)
+
+wordcloud(words = word_df$word, freq = word_df$freq, min.freq = 2,
+          max.words = 100, random.order = FALSE, colors = brewer.pal(8, "Dark2"))
+
+
+
+```
+
+
+```{r}
+library(dplyr)
+library(tm)
+library(wordcloud)
+library(RColorBrewer)
+
+plot_word <- function(goi, data = disease_long) {
+
+    df <- data %>%
+    select(gene, disease_entities) %>%
+    filter(gene == goi)
+
+  docs <- Corpus(VectorSource(df$disease_entities))
+
+  toSpace <- content_transformer(function(x, pattern) gsub(pattern, " ", x))
+  docs <- tm_map(docs, toSpace, "/")
+  docs <- tm_map(docs, toSpace, "@")
+  docs <- tm_map(docs, toSpace, "#")
+  docs <- tm_map(docs, content_transformer(tolower))
+  docs <- tm_map(docs, removePunctuation)
+  docs <- tm_map(docs, removeNumbers)
+  docs <- tm_map(docs, removeWords, stopwords("english"))
+  docs <- tm_map(docs, stripWhitespace)
+
+  dtm <- TermDocumentMatrix(docs)
+  m <- as.matrix(dtm)
+  word_freq <- sort(rowSums(m), decreasing = TRUE)
+  word_df <- data.frame(word = names(word_freq), freq = word_freq)
+
+  wordcloud(
+    words = word_df$word,
+    freq = word_df$freq,
+    min.freq = 2,
+    max.words = 100,
+    random.order = FALSE,
+    colors = brewer.pal(8, "Dark2"),
+    scale = c(3.5, 0.7)  
+
+  )
+
+}
+
+
+plot_word("APOL1")
+```
+
+```{r}
+unique(df$gene)
+
+```
+
+
+```{r}
+plot_word("PIWIL3")
+```
+
 
 # Statistical Tests
 
