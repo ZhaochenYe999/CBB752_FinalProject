@@ -12,7 +12,11 @@ execute:
     message: false
 ---
 
+
+
 # Loading Libraries & Data
+
+
 
 ```{r}
 library(tidyverse)
@@ -32,7 +36,11 @@ a = read_csv("data/abstracts.csv", show_col_types = F)
 
 ```
 
+
+
 # Functions
+
+
 
 ```{r}
 map_disease_name = function(value) {
@@ -290,7 +298,11 @@ plot_word = function(data, goi) {
 
 ```
 
+
+
 # Data Cleaning
+
+
 
 ```{r}
 a_clean = a %>%
@@ -310,9 +322,13 @@ a_long = a_clean %>%
 
 ```
 
+
+
 # Plots
 
 ## Barplot
+
+
 
 ```{r}
 
@@ -342,7 +358,11 @@ theme(
   )
 ```
 
+
+
 ## Heatmap
+
+
 
 ```{r}
 
@@ -392,7 +412,11 @@ ggplot(heatmap_data, aes(x = disease, y = gene, fill = count)) +
 ```
 
 
+
+
 ### Statistical Tests
+
+
 
 ```{r}
 contingency_tbl = table(a_long$gene, a_long$std_name)
@@ -412,7 +436,11 @@ sig_df %>%
 ```
 
 
+
+
 ## Word Cloud
+
+
 
 
 
@@ -426,7 +454,11 @@ sig_df %>%
 ```
 
 
+
+
 ## Validation
+
+
 
 ```{r}
 
@@ -521,7 +553,11 @@ df = dx_df %>%
   )
 ```
 
+
+
 ## Validation Metrics
+
+
 
 ```{r}
 p_list = a_long %>%
@@ -537,5 +573,4 @@ v_list =  dx_df %>%
 combined_df <- full_join(p_list, v_list, by = "gene")
 
 ```
-
 
