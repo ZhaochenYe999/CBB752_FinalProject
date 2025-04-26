@@ -20,13 +20,13 @@ library(stringr)
 library(table1)
 library(DT)
 library(dplyr)
-library(dplyr)
 library(tm)
 library(SnowballC)
 library(wordcloud)
 library(RColorBrewer)
 library(readxl)
 library(janitor)
+library(rlang)
 
 a = read_csv("data/abstracts.csv", show_col_types = F)
 
@@ -285,10 +285,59 @@ plot_word = function(data, goi) {
 }
 
 
+map_journal_family <- function(journal) {
+  case_when(
+    str_detect(journal, regex("^Nat(ure)?", ignore_case = TRUE)) ~ "Nature",
+    str_detect(journal, regex("^Plos", ignore_case = TRUE)) ~ "PLoS",
+    str_detect(journal, regex("^Front", ignore_case = TRUE)) ~ "Frontiers",
+    str_detect(journal, regex("^Bmc", ignore_case = TRUE)) ~ "BMC",
+    str_detect(journal, regex("^Lancet", ignore_case = TRUE)) ~ "Lancet",
+    str_detect(journal, regex("^Jama", ignore_case = TRUE)) ~ "JAMA",
+    str_detect(journal, regex("^J Clin", ignore_case = TRUE)) ~ "J Clin",
+    str_detect(journal, regex("^Am J", ignore_case = TRUE)) ~ "American Journal",
+    str_detect(journal, regex("^Eur J", ignore_case = TRUE)) ~ "European Journal",
+    str_detect(journal, regex("^Cell", ignore_case = TRUE)) ~ "Cell",
+    str_detect(journal, regex("^Sci(ence)?|Sci Rep|Sci Adv", ignore_case = TRUE)) ~ "Science",
+    str_detect(journal, regex("^Proc Natl Acad Sci", ignore_case = TRUE)) ~ "PNAS",
+    TRUE ~ journal 
+  )
+}
 
+
+library(ggplot2)
+library(dplyr)
+library(rlang)
+
+plot_bar <- function(df, x, y, title, top_n = 20) {
+  x_sym <- sym(x)
+  y_sym <- sym(y)
+  
+  df %>%
+    slice_max(!!y_sym, n = top_n) %>%
+    ggplot(aes(x = reorder(!!x_sym, !!y_sym), y = !!y_sym)) +
+    geom_col(fill = "steelblue") +
+    coord_flip() +
+    labs(
+      title = title,
+      x = x,
+      y = y
+    ) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(size = 20, face = "bold", hjust = 0.5),
+      axis.title.x = element_text(size = 16),
+      axis.title.y = element_text(size = 16),
+      axis.text.x = element_text(size = 14),
+      axis.text.y = element_text(size = 14),
+      legend.title = element_text(size = 14),
+      legend.text = element_text(size = 12),
+      plot.margin = margin(1, 1, 2, 2, "cm")
+    )
+}
 
 
 ```
+
 
 # Data Cleaning
 
@@ -318,6 +367,8 @@ a_long = a_clean %>%
 
 top_terms = a_long %>%
     count(std_name, sort = TRUE)
+
+plot_bar(top_terms, x = "Disease Entity",     y = "n",     title = "Top 20 Most Frequent Disease Mentions" )
 
 top_terms %>%
   slice_max(n, n = 20) %>%
@@ -391,7 +442,6 @@ ggplot(heatmap_data, aes(x = disease, y = gene, fill = count)) +
 
 ```
 
-
 ### Statistical Tests
 
 ```{r}
@@ -411,10 +461,7 @@ sig_df %>%
     datatable()
 ```
 
-
 ## Word Cloud
-
-
 
 ```{r}
 #plot_word("APOL1", a_long)
@@ -424,7 +471,6 @@ sig_df %>%
 #unique(df$gene)
 
 ```
-
 
 ## Validation
 
@@ -521,20 +567,33 @@ df = dx_df %>%
   )
 ```
 
-## Validation Metrics
+## Journals
 
 ```{r}
-p_list = a_long %>%
-    group_by(gene) %>%
-    summarise(pubmed_entities = list(unique(disease_entities)), .groups = "drop")
 
+journal_df <- a_clean %>%
+  mutate(
+    journal_clean = abstract %>%
+      str_extract("^.+?(?=\\.\\s\\d{4})") %>%
+      str_remove("^\\d+\\.\\s*") %>%
+      str_remove_all("\\[.*?\\]") %>%
+      str_remove_all("(?<=\\s)\\(.*?\\)") %>%
+      str_replace_all("\\s{2,}", " ") %>%
+      str_trim() %>%
+      str_to_title()
+  ) %>%
+  mutate(journal_family = map_journal_family(journal_clean))
 
-v_list =  dx_df %>%
-    group_by(gene) %>%
-    summarise(valid_entities = list(unique(disease_entities)), .groups = "drop")
+    
+View(journal_df)    
 
+```
 
-combined_df <- full_join(p_list, v_list, by = "gene")
+```{r}
+plot_bar(journal_df %>% count(journal_family, sort = TRUE),
+         x = "journal_family",
+         y = "n",
+         title = "Top 20 Journals")
 
 ```
 
